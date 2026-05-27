@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dialysis Time Optimizer</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons para componentes visuales -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Manifest JSON embebido mediante Data URI para mantener un solo archivo -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkRpYWx5c2lzIFRpbWUgT3B0aW1pemVyIiwKICAic2hvcnRfbmFtZSI6ICJEaWFseXNpcyBUaW1lIiwKICAic3RhcnRfdXJsIjogIi4vaW5kZXguaHRtbCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y4ZmFmYyIsCiAgInRoZW1lX2NvbG9yIjogIiMwZjk2ODgiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImljb25vLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+    <meta name="theme-color" content="#0f9688">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* Estilos optimizados para móviles y transiciones suaves */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col hide-scrollbar select-none pb-12">
+
+    <!-- Header / Barra Superior -->
+    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white pt-8 pb-5 px-6 rounded-b-[2rem] shadow-lg sticky top-0 z-50">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Icono SVG Recreado del original -->
+                <div class="w-12 h-12 bg-white rounded-full p-0.5 shadow-inner flex items-center justify-center">
+                    <svg viewBox="0 0 512 512" class="w-11 h-11">
+                        <circle cx="256" cy="256" r="240" fill="#62c462"/>
+                        <circle cx="256" cy="256" r="240" stroke="#1d5fa3" stroke-width="24" fill="none"/>
+                        <!-- Monitor de diálisis -->
+                        <rect x="96" y="112" width="160" height="280" rx="20" fill="#f0f9ff" stroke="#1d2d44" stroke-width="12"/>
+                        <rect x="116" y="132" width="120" height="70" rx="8" fill="#1d5f6a" stroke="#1d2d44" stroke-width="8"/>
+                        <!-- Línea de pulso -->
+                        <path d="M 126 167 L 151 167 L 161 147 L 176 187 L 191 157 L 201 167 L 226 167" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Botones del monitor -->
+                        <circle cx="136" cy="266" r="16" fill="#a1a1aa" stroke="#1d2d44" stroke-width="6"/>
+                        <circle cx="216" cy="256" r="12" fill="#ef4444" stroke="#1d2d44" stroke-width="6"/>
+                        <circle cx="176" cy="226" r="6" fill="#f59e0b"/>
+                        <circle cx="196" cy="226" r="6" fill="#10b981"/>
+                        <circle cx="216" cy="226" r="6" fill="#3b82f6"/>
+                        <!-- Conexiones / Tubos -->
+                        <path d="M 136 290 Q 136 360 196 360 Q 216 360 216 310" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round"/>
+                        <path d="M 216 310 Q 216 360 216 360" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round"/>
+                        <!-- Filtro / Dializador -->
+                        <rect x="326" y="146" width="80" height="190" rx="12" fill="#e0f2fe" stroke="#1d2d44" stroke-width="12"/>
+                        <rect x="316" y="126" width="100" height="30" rx="6" fill="#1d5fa3" stroke="#1d2d44" stroke-width="10"/>
+                        <rect x="316" y="306" width="100" height="30" rx="6" fill="#1d5fa3" stroke="#1d2d44" stroke-width="10"/>
+                        <!-- Sangre del filtro -->
+                        <path d="M 336 156 L 396 156 L 396 230 C 370 240 350 210 336 230 Z" fill="#ef4444"/>
+                        <path d="M 336 306 L 396 306 L 396 230 C 370 240 350 210 336 230 Z" fill="#3b82f6"/>
+                        <!-- Líneas conectores principales -->
+                        <path d="M 256 226 Q 316 226 356 126" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round"/>
+                        <path d="M 256 266 Q 316 266 356 386" fill="none" stroke="#ef4444" stroke-width="12" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-none">Dialysis Time</h1>
+                    <span class="text-xs text-teal-100 opacity-90 font-medium">Cálculo de Tiempo de Tratamiento</span>
+                </div>
+            </div>
+            <!-- Estado offline -->
+            <div id="offline-badge" class="bg-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2 py-1 rounded-full border border-emerald-400/30 flex items-center gap-1">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Offline Listo
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 px-4 py-6 max-w-md mx-auto w-full space-y-5">
+
+        <!-- Card de Datos del Paciente -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <i data-lucide="user" class="text-teal-600 w-5 h-5"></i>
+                <h2 class="font-bold text-slate-700">Datos Fisiológicos</h2>
+            </div>
+
+            <!-- Género -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Género</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="gender-male" onclick="setGender('male')" class="py-3 px-4 rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-semibold flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="mars" class="w-5 h-5"></i> Masculino
+                    </button>
+                    <button type="button" id="gender-female" onclick="setGender('female')" class="py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="venus" class="w-5 h-5"></i> Femenino
+                    </button>
+                </div>
+            </div>
+
+            <!-- Selector de Fórmula Watson -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fórmula de Watson (V)</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="formula-tall" onclick="setFormula(true)" class="py-2.5 px-3 text-xs rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-bold transition-all">
+                        Con Talla (Estándar)
+                    </button>
+                    <button type="button" id="formula-no-tall" onclick="setFormula(false)" class="py-2.5 px-3 text-xs rounded-xl border-2 border-slate-200 text-slate-600 font-bold transition-all">
+                        Sin Talla (Simplificada)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Campos numéricos de entrada -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="input-weight" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Peso (kg)</label>
+                    <div class="relative">
+                        <input type="number" id="input-weight" placeholder="0.0" step="0.1" oninput="calculate()" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-teal-500 text-base font-semibold">
+                    </div>
+                </div>
+
+                <div id="wrapper-tall">
+                    <label for="input-height" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Talla (cm)</label>
+                    <div class="relative">
+                        <input type="number" id="input-height" placeholder="0" oninput="calculate()" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-teal-500 text-base font-semibold">
+                    </div>
+                </div>
+
+                <div id="wrapper-age">
+                    <label for="input-age" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Edad (años)</label>
+                    <div class="relative">
+                        <input type="number" id="input-age" placeholder="0" oninput="calculate()" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-teal-500 text-base font-semibold">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card de Selección del Dializador -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                <i data-lucide="layers" class="text-teal-600 w-5 h-5"></i>
+                <h2 class="font-bold text-slate-700">Configuración de Diálisis</h2>
+            </div>
+
+            <div>
+                <label for="dialyzer-select" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Modelo de Dializador</label>
+                <select id="dialyzer-select" onchange="onDialyzerChange()" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-teal-500 text-base font-semibold text-slate-700">
+                    <!-- Cargados dinámicamente -->
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Aclaramiento (K)</span>
+                    <span id="display-clearance" class="text-lg font-extrabold text-teal-600">-- ml/min</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Frecuencia Qb</span>
+                    <span class="text-sm font-semibold text-slate-600">300 ml/min (Fijo)</span>
+                </div>
+            </div>
+
+            <!-- Objetivo de Kt/V Simplificado -->
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Objetivo Kt/V deseado</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="ktv-1.3" onclick="setKtv(1.3)" class="py-3 px-4 rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-bold text-sm transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-600"></i> 1.3 (Predet.)
+                    </button>
+                    <div class="relative">
+                        <input type="number" id="ktv-custom" placeholder="Escribir otro..." step="0.1" min="0.1" max="3.0" oninput="setKtvCustom()" class="w-full text-center bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-teal-500 text-sm font-bold h-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card de Resultados -->
+        <section class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-700/50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="timer" class="text-teal-400 w-5 h-5"></i>
+                    <h2 class="font-bold">Resultados Calculados</h2>
+                </div>
+                <span id="badge-ktv" class="text-[10px] bg-teal-500/20 text-teal-300 font-bold px-2 py-0.5 rounded-full border border-teal-500/30">Objetivo: Kt/V 1.3</span>
+            </div>
+
+            <!-- Volumen Corporal Calculado -->
+            <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Agua Corporal Total (V)</span>
+                    <span class="text-xs text-slate-300 italic" id="formula-text-display">Watson con Talla</span>
+                </div>
+                <div class="text-right">
+                    <span id="result-volume" class="text-xl font-black text-white">-- L</span>
+                </div>
+            </div>
+
+            <!-- Tiempo Recomendado -->
+            <div class="bg-gradient-to-r from-teal-500/10 to-cyan-500/10 p-4 rounded-xl border border-teal-500/20 flex flex-col items-center justify-center text-center py-6">
+                <span class="text-xs font-bold text-teal-400 uppercase tracking-wider mb-1">Tiempo de Diálisis Requerido</span>
+                <span id="result-time-formatted" class="text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-300">-- h -- min</span>
+                <span id="result-time-minutes" class="text-xs text-slate-400 mt-2">-- minutos en total</span>
+            </div>
+
+            <p class="text-[10px] text-slate-400 text-center leading-relaxed">
+                Nota: Este modelo calcula el tiempo óptimo neto utilizando el aclaramiento nominal a un flujo constante de bomba de sangre de 300 ml/min. Ajuste según criterio clínico.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Script de Datos y Lógica de Cálculos -->
+    <script>
+        // Datos de aclaramientos obtenidos del archivo Word de referencia
+        const dialyzers = [
+            { name: "F5", clearance: 227 },
+            { name: "F6", clearance: 243 },
+            { name: "F7", clearance: 247 },
+            { name: "F8", clearance: 252 },
+            { name: "F10", clearance: 259 },
+            { name: "FX5", clearance: 228 },
+            { name: "FX8", clearance: 254 },
+            { name: "FX10", clearance: 261 },
+            { name: "FX50", clearance: 253 },
+            { name: "FX60", clearance: 266 },
+            { name: "FX80", clearance: 279 },
+            { name: "FX100", clearance: 280 },
+            { name: "FX CorAL 60", clearance: 270 },
+            { name: "FX CorAL 80", clearance: 277 },
+            { name: "FX CorAL 100", clearance: 339 },
+            { name: "FX CorAL 120", clearance: 345 },
+            { name: "SM120 H", clearance: 255 },
+            { name: "SM140 H", clearance: 260 },
+            { name: "SM160 H", clearance: 267 },
+            { name: "SM180 H", clearance: 275 },
+            { name: "SM200 H", clearance: 280 },
+            { name: "SM140 L", clearance: 229 },
+            { name: "SM160 L", clearance: 231 },
+            { name: "SM180 L", clearance: 235 },
+            { name: "SM200 L", clearance: 238 },
+            { name: "ELISIO 09H", clearance: 243 },
+            { name: "ELISIO 11H", clearance: 253 },
+            { name: "ELISIO 13H", clearance: 263 },
+            { name: "ELISIO 15H", clearance: 270 },
+            { name: "ELISIO 17H", clearance: 275 },
+            { name: "ELISIO 19H", clearance: 280 },
+            { name: "ELISIO 21H", clearance: 284 },
+            { name: "ELISIO 25H", clearance: 293 },
+            { name: "ELISIO 11M", clearance: 240 },
+            { name: "ELISIO 13M", clearance: 249 },
+            { name: "ELISIO 15M", clearance: 257 },
+            { name: "ELISIO 17M", clearance: 265 },
+            { name: "ELISIO 19M", clearance: 268 },
+            { name: "ELISIO 21M", clearance: 274 },
+            { name: "ELISIO 11L", clearance: 237 },
+            { name: "ELISIO 13L", clearance: 248 },
+            { name: "ELISIO 15L", clearance: 255 },
+            { name: "ELISIO 17L", clearance: 263 },
+            { name: "ELISIO 19L", clearance: 267 },
+            { name: "ELISIO 21L", clearance: 274 },
+            { name: "Optiflux F160NRe", clearance: 271 },
+            { name: "Optiflux F180NRe", clearance: 277 },
+            { name: "Optiflux F200NRe", clearance: 280 },
+            { name: "Optiflux F250NRe", clearance: 287 },
+            { name: "Revaclear® 300", clearance: 272 },
+            { name: "Revaclear® 400", clearance: 281 },
+            { name: "POLYFLUX 140H", clearance: 262 },
+            { name: "POLYFLUX 170H", clearance: 270 },
+            { name: "POLYFLUX 210H", clearance: 281 },
+            { name: "Theranova 400", clearance: 246 },
+            { name: "Theranova 500", clearance: 250 }
+        ];
+
+        // Estado inicial de la aplicación
+        let state = {
+            gender: 'male',
+            useHeight: true,
+            targetKtv: 1.3,
+            selectedClearance: 0
+        };
+
+        // Al iniciar la aplicación
+        window.onload = function() {
+            lucide.createIcons();
+            populateDialyzers();
+            calculate();
+        };
+
+        // Rellenar lista de dializadores
+        function populateDialyzers() {
+            const select = document.getElementById('dialyzer-select');
+            dialyzers.forEach((d, index) => {
+                const opt = document.createElement('option');
+                opt.value = d.clearance;
+                opt.textContent = `${d.name} (K: ${d.clearance} ml/min)`;
+                if (index === 0) opt.selected = true;
+                select.appendChild(opt);
+            });
+            onDialyzerChange();
+        }
+
+        // Cambio de dializador seleccionado
+        function onDialyzerChange() {
+            const select = document.getElementById('dialyzer-select');
+            state.selectedClearance = parseFloat(select.value);
+            document.getElementById('display-clearance').textContent = `${state.selectedClearance} ml/min`;
+            calculate();
+        }
+
+        // Alternar selección de género
+        function setGender(gender) {
+            state.gender = gender;
+            const maleBtn = document.getElementById('gender-male');
+            const femaleBtn = document.getElementById('gender-female');
+
+            if (gender === 'male') {
+                maleBtn.className = "py-3 px-4 rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-semibold flex items-center justify-center gap-2 transition-all";
+                femaleBtn.className = "py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold flex items-center justify-center gap-2 transition-all";
+            } else {
+                maleBtn.className = "py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-600 font-semibold flex items-center justify-center gap-2 transition-all";
+                femaleBtn.className = "py-3 px-4 rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-semibold flex items-center justify-center gap-2 transition-all";
+            }
+            calculate();
+        }
+
+        // Alternar tipo de fórmula Watson (con o sin talla)
+        function setFormula(useHeight) {
+            state.useHeight = useHeight;
+            const tallBtn = document.getElementById('formula-tall');
+            const noTallBtn = document.getElementById('formula-no-tall');
+            const wrapperTall = document.getElementById('wrapper-tall');
+            const wrapperAge = document.getElementById('wrapper-age');
+
+            if (useHeight) {
+                tallBtn.className = "py-2.5 px-3 text-xs rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-bold transition-all";
+                noTallBtn.className = "py-2.5 px-3 text-xs rounded-xl border-2 border-slate-200 text-slate-600 font-bold transition-all";
+                wrapperTall.style.display = 'block';
+                wrapperAge.style.display = 'block';
+                document.getElementById('formula-text-display').textContent = "Watson con Talla y Edad";
+            } else {
+                tallBtn.className = "py-2.5 px-3 text-xs rounded-xl border-2 border-slate-200 text-slate-600 font-bold transition-all";
+                noTallBtn.className = "py-2.5 px-3 text-xs rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-bold transition-all";
+                wrapperTall.style.display = 'none';
+                wrapperAge.style.display = 'none';
+                document.getElementById('formula-text-display').textContent = "Watson simplificada sin Talla";
+            }
+            calculate();
+        }
+
+        // Ajustar el objetivo de Kt/V al valor predeterminado (1.3)
+        function setKtv(val) {
+            state.targetKtv = val;
+            document.getElementById('ktv-custom').value = '';
+            
+            const btn13 = document.getElementById('ktv-1.3');
+
+            // Resaltar el botón de 1.3
+            btn13.className = "py-3 px-4 rounded-xl border-2 border-teal-600 bg-teal-50 text-teal-800 font-bold text-sm transition-all flex items-center justify-center gap-2";
+            
+            // Actualizar etiqueta del resultado
+            document.getElementById('badge-ktv').textContent = `Objetivo: Kt/V ${val.toFixed(1)}`;
+            calculate();
+        }
+
+        // Capturar Kt/V personalizado escrito por el usuario
+        function setKtvCustom() {
+            const val = parseFloat(document.getElementById('ktv-custom').value);
+            if (!isNaN(val) && val > 0) {
+                state.targetKtv = val;
+                
+                // Desactivar el botón predefinido de 1.3
+                document.getElementById('ktv-1.3').className = "py-3 px-4 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-sm transition-all flex items-center justify-center gap-2";
+                
+                // Actualizar etiqueta del resultado
+                document.getElementById('badge-ktv').textContent = `Objetivo: Kt/V ${val.toFixed(1)}`;
+                calculate();
+            }
+        }
+
+        // Función Principal del Cálculo de Tiempo de Diálisis
+        function calculate() {
+            const weight = parseFloat(document.getElementById('input-weight').value);
+            const height = parseFloat(document.getElementById('input-height').value);
+            const age = parseFloat(document.getElementById('input-age').value);
+
+            // Validar peso obligatorio
+            if (isNaN(weight) || weight <= 0) {
+                resetOutputs();
+                return;
+            }
+
+            let V = 0; // Volumen en Litros
+
+            if (state.useHeight) {
+                // Validación de talla y edad requeridas para Watson con talla
+                if (isNaN(height) || height <= 0 || isNaN(age) || age <= 0) {
+                    resetOutputs();
+                    return;
+                }
+                
+                // Watson completo con talla
+                if (state.gender === 'male') {
+                    V = 2.447 - (0.09516 * age) + (0.1074 * height) + (0.3362 * weight);
+                } else {
+                    V = -2.097 + (0.1069 * height) + (0.2466 * weight);
+                }
+            } else {
+                // Watson sin talla (mujeres: 0.58, hombres: 0.6)
+                if (state.gender === 'male') {
+                    V = 0.60 * weight;
+                } else {
+                    V = 0.58 * weight;
+                }
+            }
+
+            // Mostrar el volumen obtenido
+            document.getElementById('result-volume').textContent = `${V.toFixed(2)} Litros`;
+
+            // Calcular tiempo: Kt/V = (K * t) / V => t = (Kt/V * V) / K
+            // Convertimos K de ml/min a L/min dividiendo por 1000
+            const K_liters = state.selectedClearance / 1000;
+            
+            if (K_liters > 0) {
+                const totalMinutes = (state.targetKtv * V) / K_liters;
+                const roundedMinutes = Math.round(totalMinutes);
+                
+                const hours = Math.floor(roundedMinutes / 60);
+                const minutes = roundedMinutes % 60;
+
+                document.getElementById('result-time-formatted').textContent = `${hours} h ${minutes} min`;
+                document.getElementById('result-time-minutes').textContent = `${roundedMinutes} minutos totales`;
+            } else {
+                resetOutputs();
+            }
+        }
+
+        // Reiniciar campos de salida
+        function resetOutputs() {
+            document.getElementById('result-volume').textContent = "-- L";
+            document.getElementById('result-time-formatted').textContent = "-- h -- min";
+            document.getElementById('result-time-minutes').textContent = "-- minutos en total";
+        }
+    </script>
+
+    <!-- Service Worker para Funcionamiento 100% Offline -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'dialysis-optimizer-v1';
+                const ASSETS = [
+                    './index.html',
+                    './icono.png',
+                    'https://cdn.tailwindcss.com',
+                    'https://unpkg.com/lucide@latest'
+                ];
+
+                self.addEventListener('install', (e) => {
+                    e.waitUntil(
+                        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+                    );
+                });
+
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(
+                        caches.match(e.request).then((res) => res || fetch(e.request))
+                    );
+                });
+            `;
+
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+
+            navigator.serviceWorker.register(swUrl)
+                .then(() => console.log('Service Worker Registrado Exitosamente'))
+                .catch(err => console.log('Error al registrar Service Worker: ', err));
+        }
+    </script>
+</body>
+</html>
