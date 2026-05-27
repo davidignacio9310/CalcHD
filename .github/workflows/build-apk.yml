@@ -10,21 +10,21 @@ jobs: build: runs-on: ubuntu-latest
 
 steps:
   - name: Checkout repository
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Node.js
-    uses: actions/setup-node@v3
+    uses: actions/setup-node@v4
     with:
       node-version: '18'
 
   - name: Set up Java Development Kit
-    uses: actions/setup-java@v3
+    uses: actions/setup-java@v4
     with:
       distribution: 'temurin'
       java-version: '17'
 
   - name: Setup Android SDK
-    uses: android-actions/setup-android@v2
+    uses: android-actions/setup-android@v3
 
   - name: Install Bubblewrap CLI
     run: npm install -g @bubblewrap/cli
@@ -39,7 +39,7 @@ steps:
       echo -e "\n\n" | bubblewrap build
 
   - name: Upload APK Artifact
-    uses: actions/upload-artifact@v3
+    uses: actions/upload-artifact@v4
     with:
       name: dialysis-time-optimizer-apk
       path: android-project/*.apk
