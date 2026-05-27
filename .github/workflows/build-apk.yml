@@ -8,32 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: openjdk:17-jdk-slim
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare Environment
+      - name: Create package structure
         run: |
-          apt-get update && apt-get install -y git wget unzip
-          # Instalación mínima de herramientas necesarias
+          mkdir -p final_app
+          cp index.html final_app/index.html
+          cp icono.png final_app/icono.png
           
-      - name: Build with PWA-to-APK (Manual)
-        run: |
-          # Dado que un archivo unico es lo que buscas, 
-          # este script descarga un empaquetador ligero de confianza
-          mkdir -p build_dir
-          cp index.html build_dir/index.html
-          cp icono.png build_dir/icono.png
-          
-          # Generación de estructura simple para Webview nativo
-          echo "Compilando aplicación..."
-          # Aquí se ejecutaría la lógica de empaquetado nativo
-          # Si el error persiste, confirma que el archivo icono.png existe en la raíz
-          
-      - name: Upload Artifact
+      - name: Archive build
         uses: actions/upload-artifact@v4
         with:
-          name: Dialysis-App
-          path: build_dir/
+          name: Dialysis-App-Files
+          path: final_app/
